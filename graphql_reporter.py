@@ -160,7 +160,7 @@ if __name__ == '__main__':
         ips = []
         events = get_firewall_events(historical_hours, ['wp'])
         for event in events:
-            comment = f'WordPress Scanner Reporter v1.1 - Mass scan to \'{event["rp"]}\' with user agent of \'{event["ua"]}\''
+            comment = f'Web Reporter v1.1 - Mass scan to \'{event["rp"]}\' with user agent of \'{event["ua"]}\''
             categories = '21,19,10'
             if event['ip'] in ips:
                 continue
