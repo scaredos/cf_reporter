@@ -1,4 +1,5 @@
 import requests
+import time
 
 from datetime import datetime, timedelta
 
@@ -155,9 +156,15 @@ if __name__ == '__main__':
     # Later version will have graphql include the filter
     if cloudflare_email == '' or abuseipdb_key == '':
         print('Please input all required API keys and account information')
-    events = get_firewall_events(historical_hours, ['wp'])
-    for event in events:
-        comment = f'WordPress Scanner Reporter v1.1 - Mass scan to \'{event["clientRP"]}\' with user agent of \'{event["clientUA"]}\''
-        categories = '21,19,10'
-        report_abuseipdb(event['clientIP'], comment, categories)
-        print(f'Reported {event["clientIP"]} for Mass wordpress scan')
+
+    while True:
+        events = get_firewall_events(historical_hours, ['wp'])
+        for event in events:
+            comment = f'WordPress Scanner Reporter v1.1 - Mass scan to \'{event["clientRP"]}\' with user agent of \'{event["clientUA"]}\''
+            categories = '21,19,10'
+            report_abuseipdb(event['clientIP'], comment, categories)
+            print(f'Reported {event["clientIP"]} for Mass wordpress scan')
+            # Sleep to prevent spam of API endpoint
+            time.sleep(1)
+        time.sleep(60 * 60 * 1.5)
+        # 1 minute * 60 minutes * 1.5 hours
