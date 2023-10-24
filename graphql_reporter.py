@@ -115,7 +115,7 @@ def get_firewall_events(historical_hours: int, filter: list) -> list:
             for item in filter:
                 if item in event['clientRequestPath']:
                     clientIP = event['clientIP']
-                    clientUA = event['clientUserAgent']
+                    clientUA = event['userAgent']
                     clientRP = event['clientRequestPath']
                     events.append(
                         {'ip': clientIP, 'ua': clientUA, 'rp': clientRP})
@@ -160,10 +160,10 @@ if __name__ == '__main__':
     while True:
         events = get_firewall_events(historical_hours, ['wp'])
         for event in events:
-            comment = f'WordPress Scanner Reporter v1.1 - Mass scan to \'{event["clientRP"]}\' with user agent of \'{event["clientUA"]}\''
+            comment = f'WordPress Scanner Reporter v1.1 - Mass scan to \'{event["rp"]}\' with user agent of \'{event["ua"]}\''
             categories = '21,19,10'
-            report_abuseipdb(event['clientIP'], comment, categories)
-            print(f'Reported {event["clientIP"]} for Mass wordpress scan')
+            report_abuseipdb(event['ip'], comment, categories)
+            print(f'Reported {event["ip"]} for Mass wordpress scan')
             # Sleep to prevent spam of API endpoint
             time.sleep(1)
         time.sleep(60 * 60 * 1.5)
