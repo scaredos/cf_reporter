@@ -134,7 +134,7 @@ def report_abuseipdb(ip: str, comment: str, categories: str) -> requests.request
     Returns:
     requests.request : Response from AbuseIPDB API Endpoint
     """
-    url = 'https://www.abuseipdb.com/api/v2/reports'
+    url = 'https://www.abuseipdb.com/api/v2/report'
     params = {
         'ip': ip,
         'categories': categories,
