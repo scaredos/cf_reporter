@@ -16,7 +16,6 @@ url = 'https://api.cloudflare.com/client/v4/graphql'
 
 historical_hours = 1
 
-
 def get_past_date(num_hours: int) -> datetime.date:
     """
     Get past date given number of hours
@@ -58,7 +57,7 @@ def get_cf_graphql(start_date: datetime.date, end_date: datetime.date) -> reques
           ) {{
             firewallEventsAdaptive(
               filter: $filter
-              limit: 100
+              limit: 1000
               orderBy: [datetime_DESC]
             ) {{
                 action
@@ -134,7 +133,8 @@ def report_abuseipdb(ip: str, comment: str, categories: str) -> requests.request
     Returns:
     requests.request : Response from AbuseIPDB API Endpoint
     """
-    url = 'https://www.abuseipdb.com/api/v2/report'
+    url = 'https://api.abuseipdb.com/api/v2/report'
+
     params = {
         'ip': ip,
         'categories': categories,
@@ -147,9 +147,8 @@ def report_abuseipdb(ip: str, comment: str, categories: str) -> requests.request
     }
 
     r = requests.post(url, headers=headers, params=params)
-
+    # print(r.text)
     return r
-
 
 if __name__ == '__main__':
     # Purpose of this is to get events contains *wp*, so that is our filter
@@ -158,10 +157,14 @@ if __name__ == '__main__':
         print('Please input all required API keys and account information')
 
     while True:
+        ips = []
         events = get_firewall_events(historical_hours, ['wp'])
         for event in events:
             comment = f'WordPress Scanner Reporter v1.1 - Mass scan to \'{event["rp"]}\' with user agent of \'{event["ua"]}\''
             categories = '21,19,10'
+            if event['ip'] in ips:
+                continue
+            ips.append(event['ip'])
             report_abuseipdb(event['ip'], comment, categories)
             print(f'Reported {event["ip"]} for Mass wordpress scan')
             # Sleep to prevent spam of API endpoint
