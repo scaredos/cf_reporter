@@ -120,7 +120,7 @@ def get_firewall_events(historical_hours: int, filter: list) -> list:
                     {'ip': clientIP, 'ua': clientUA, 'rp': clientRP})
                 continue
             for item in filter:
-                if item in event['clientRequestPath']:
+                if item in event['clientRequestPath'] or item in event['userAgent'] or item in event['clientIP']:
                     clientIP = event['clientIP']
                     clientUA = event['userAgent']
                     clientRP = event['clientRequestPath']
