@@ -16,6 +16,7 @@ url = 'https://api.cloudflare.com/client/v4/graphql'
 
 historical_hours = 1
 
+
 def get_past_date(num_hours: int) -> datetime.date:
     """
     Get past date given number of hours
@@ -57,7 +58,7 @@ def get_cf_graphql(start_date: datetime.date, end_date: datetime.date) -> reques
           ) {{
             firewallEventsAdaptive(
               filter: $filter
-              limit: 1000
+              limit: 10000
               orderBy: [datetime_DESC]
             ) {{
                 action
@@ -111,6 +112,13 @@ def get_firewall_events(historical_hours: int, filter: list) -> list:
         if not req.json()['data']:
             return []
         for event in req.json()['data']['viewer']['zones'][0]['firewallEventsAdaptive']:
+            if len(filter) == 0:
+                clientIP = event['clientIP']
+                clientUA = event['userAgent']
+                clientRP = event['clientRequestPath']
+                events.append(
+                    {'ip': clientIP, 'ua': clientUA, 'rp': clientRP})
+                continue
             for item in filter:
                 if item in event['clientRequestPath']:
                     clientIP = event['clientIP']
@@ -150,6 +158,7 @@ def report_abuseipdb(ip: str, comment: str, categories: str) -> requests.request
     # print(r.text)
     return r
 
+
 if __name__ == '__main__':
     # Purpose of this is to get events contains *wp*, so that is our filter
     # Later version will have graphql include the filter
@@ -160,7 +169,7 @@ if __name__ == '__main__':
         ips = []
         events = get_firewall_events(historical_hours, ['wp'])
         for event in events:
-            comment = f'Web Reporter v1.1 - Mass scan to \'{event["rp"]}\' with user agent of \'{event["ua"]}\''
+            comment = f'WAF Detection - Unauthorized req to \'{event["rp"]}\' with user agent of \'{event["ua"]}\''
             categories = '21,19,10'
             if event['ip'] in ips:
                 continue
@@ -171,3 +180,4 @@ if __name__ == '__main__':
             time.sleep(1)
         time.sleep(60 * 60 * 1.5)
         # 1 minute * 60 minutes * 1.5 hours
+
