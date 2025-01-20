@@ -1,5 +1,5 @@
-# badbots
-Tools to stop bad web bots
+# CF Reporter
+Tool to report bots using Cloudflare's GraphQL interface
 
 
 ## Tools
